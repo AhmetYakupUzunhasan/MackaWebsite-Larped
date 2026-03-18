@@ -1,0 +1,55 @@
+﻿{{define "templates/admin/post_edit.html"}}
+{{template "admin_shell_start" .}}
+<form method="post" enctype="multipart/form-data" class="stack-form">
+  <section class="panel admin-form-panel">
+    <div class="two-col">
+      <label>Slug<input type="text" name="slug" value="{{.Post.Slug}}"></label>
+      <label class="checkbox-row"><input type="checkbox" name="published" {{if .Post.Published}}checked{{end}}> Hemen yayınla</label>
+    </div>
+    <label>Başlık<input type="text" name="title_tr" value="{{.Post.TitleTR}}"></label>
+    <label>Özet<textarea name="summary_tr" rows="4">{{.Post.SummaryTR}}</textarea></label>
+    <label>İçerik<textarea name="body_tr" rows="12">{{.Post.BodyTR}}</textarea></label>
+    <label>Kapak görseli
+      <select name="cover_image_id">
+        <option value="">Kapak görseli yok</option>
+        {{range .Media}}
+        <option value="{{.ID}}" {{if and $.Post.CoverImageID.Valid (eq $.Post.CoverImageID.Int64 .ID)}}selected{{end}}>{{.Title}} (#{{.ID}})</option>
+        {{end}}
+      </select>
+    </label>
+    <div class="panel upload-inline-panel">
+      <p class="eyebrow">Hızlı Yükleme</p>
+      <h2>Yeni kapak görseli ekle</h2>
+      <div class="two-col">
+        <label>Görsel başlığı<input type="text" name="cover_title" placeholder="Örn. Bahar buluşması afişi"></label>
+        <label>Alt metin<input type="text" name="cover_alt_tr" placeholder="Görsel açıklaması"></label>
+      </div>
+      <div class="file-picker-field">
+        <span>Bilgisayardan görsel seç</span>
+        <label class="file-picker" for="cover-upload">
+          <span class="file-picker-button">Dosya seç</span>
+          <span class="file-picker-name" id="cover-upload-name">Henüz dosya seçilmedi</span>
+        </label>
+        <input id="cover-upload" type="file" name="cover_upload" accept="image/*">
+      </div>
+      <p>Buradan dosya seçerseniz görsel otomatik yüklenir ve bu duyuruya kapak olarak atanır.</p>
+    </div>
+  </section>
+  <div class="admin-actions">
+    <a class="btn btn-secondary" href="/admin/posts">Geri dön</a>
+    <button class="btn btn-primary" type="submit">Duyuruyu kaydet</button>
+  </div>
+</form>
+<script>
+  (function () {
+    const input = document.getElementById("cover-upload");
+    const label = document.getElementById("cover-upload-name");
+    if (!input || !label) return;
+    input.addEventListener("change", function () {
+      const fileName = input.files && input.files.length > 0 ? input.files[0].name : "Henüz dosya seçilmedi";
+      label.textContent = fileName;
+    });
+  })();
+</script>
+{{template "admin_shell_end" .}}
+{{end}}

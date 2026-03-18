@@ -1,0 +1,56 @@
+﻿{{define "admin_head"}}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Title}} | Yönetim</title>
+  <link rel="stylesheet" href="/static/css/site.css">
+</head>
+<body class="admin-body">
+{{end}}
+
+{{define "admin_sidebar"}}
+<aside class="admin-sidebar">
+  <div class="admin-brand">
+    <span class="eyebrow">İçerik Yönetimi</span>
+    <strong>{{.Settings.AssociationNameTR}}</strong>
+  </div>
+  <nav class="admin-nav">
+    <a href="/admin/">Genel Bakış</a>
+    <a href="/admin/settings">Site Ayarları</a>
+    <a href="/admin/pages">Sayfalar</a>
+    <a href="/admin/sections">Ana Sayfa Bölümleri</a>
+    <a href="/admin/posts">Duyurular</a>
+    <a href="/admin/media">Medya</a>
+    <a href="/admin/contacts">Mesajlar</a>
+  </nav>
+  <div class="admin-sidebar-footer">
+    <p>{{.User.Username}}</p>
+    <form method="post" action="/admin/logout">
+      <button class="btn btn-secondary" type="submit">Çıkış yap</button>
+    </form>
+  </div>
+</aside>
+{{end}}
+
+{{define "admin_shell_start"}}
+{{template "admin_head" .}}
+<div class="admin-shell">
+  {{template "admin_sidebar" .}}
+  <main class="admin-main">
+    <header class="admin-header admin-header-soft">
+      <div>
+        <p class="eyebrow">Yönetim Alanı</p>
+        <h1>{{.Title}}</h1>
+      </div>
+      {{if .Flash}}<div class="flash success">{{.Flash}}</div>{{end}}
+    </header>
+{{end}}
+
+{{define "admin_shell_end"}}
+  </main>
+</div>
+</body>
+</html>
+{{end}}

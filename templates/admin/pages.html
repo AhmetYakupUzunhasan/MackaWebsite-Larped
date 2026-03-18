@@ -1,0 +1,17 @@
+﻿{{define "templates/admin/pages.html"}}
+{{template "admin_shell_start" .}}
+<section class="card-grid admin-card-grid">
+  {{range .Pages}}
+  <article class="panel admin-list-card">
+    <p class="eyebrow">{{.Slug}}</p>
+    <h2>{{.Title}}</h2>
+    <p>{{.Intro}}</p>
+    <div class="admin-card-footer">
+      <span>Son güncelleme: {{fmtDate .UpdatedAt}}</span>
+      <a class="btn btn-primary" href="/admin/pages/edit?slug={{.Slug}}">Düzenle</a>
+    </div>
+  </article>
+  {{end}}
+</section>
+{{template "admin_shell_end" .}}
+{{end}}

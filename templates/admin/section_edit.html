@@ -1,0 +1,30 @@
+﻿{{define "templates/admin/section_edit.html"}}
+{{template "admin_shell_start" .}}
+<form method="post" class="stack-form">
+  <section class="panel admin-form-panel">
+    <p class="eyebrow">{{.Section.PageSlug}} / {{.Section.SectionKey}}</p>
+    <h2>Bölüm içeriği</h2>
+    <label>Başlık<input type="text" name="title" value="{{.Section.Title}}"></label>
+    <label>Alt başlık<input type="text" name="subtitle" value="{{.Section.Subtitle}}"></label>
+    <label>Metin<textarea name="body" rows="8">{{.Section.Body}}</textarea></label>
+    <div class="two-col">
+      <label>Buton metni<input type="text" name="cta_name" value="{{.Section.CTAName}}"></label>
+      <label>Buton bağlantısı<input type="text" name="cta_url" value="{{.Section.CTAURL}}"></label>
+      <label>Sıralama<input type="number" name="sort_order" value="{{.Section.SortOrder}}"></label>
+      <label>Görsel
+        <select name="image_id">
+          <option value="">Görsel seçilmedi</option>
+          {{range .Media}}
+          <option value="{{.ID}}" {{if and $.Section.ImageID.Valid (eq $.Section.ImageID.Int64 .ID)}}selected{{end}}>{{.Title}} (#{{.ID}})</option>
+          {{end}}
+        </select>
+      </label>
+    </div>
+  </section>
+  <div class="admin-actions">
+    <a class="btn btn-secondary" href="/admin/sections">Geri dön</a>
+    <button class="btn btn-primary" type="submit">Bölümü kaydet</button>
+  </div>
+</form>
+{{template "admin_shell_end" .}}
+{{end}}

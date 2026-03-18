@@ -1,0 +1,45 @@
+﻿{{define "templates/admin/settings.html"}}
+{{template "admin_shell_start" .}}
+<form method="post" class="stack-form">
+  <section class="panel admin-form-panel">
+    <div class="section-heading compact">
+      <div>
+        <p class="eyebrow">Genel Bilgiler</p>
+        <h2>Site kimliği</h2>
+      </div>
+    </div>
+    <div class="two-col">
+      <label>Dernek adı<input type="text" name="association_name_tr" value="{{.Form.AssociationNameTR}}"></label>
+      <label>E-posta<input type="email" name="contact_email" value="{{.Form.ContactEmail}}"></label>
+      <label>Üst açıklama<textarea name="tagline_tr" rows="3">{{.Form.TaglineTR}}</textarea></label>
+      <label>Telefon<input type="text" name="contact_phone" value="{{.Form.ContactPhone}}"></label>
+      <label>Alt bilgi metni<textarea name="footer_text_tr" rows="3">{{.Form.FooterTextTR}}</textarea></label>
+      <label>Adres<textarea name="address_tr" rows="3">{{.Form.AddressTR}}</textarea></label>
+    </div>
+  </section>
+  <section class="panel admin-form-panel">
+    <p class="eyebrow">Gezinme</p>
+    <h2>Menü ve SEO</h2>
+    <div class="two-col">
+      <label>Ana sayfa menüsü<input type="text" name="nav_home_tr" value="{{.Form.NavHomeTR}}"></label>
+      <label>SEO açıklaması<textarea name="seo_description_tr" rows="3">{{.Form.SEODescriptionTR}}</textarea></label>
+      <label>Hakkımızda menüsü<input type="text" name="nav_about_tr" value="{{.Form.NavAboutTR}}"></label>
+      <label>Duyurular menüsü<input type="text" name="nav_posts_tr" value="{{.Form.NavPostsTR}}"></label>
+      <label>İletişim menüsü<input type="text" name="nav_contact_tr" value="{{.Form.NavContactTR}}"></label>
+    </div>
+  </section>
+  <section class="panel admin-form-panel">
+    <p class="eyebrow">Sosyal Ağlar</p>
+    <h2>Bağlantılar</h2>
+    <div class="two-col">
+      <label>Instagram URL<input type="text" name="instagram_url" value="{{.Form.InstagramURL}}"></label>
+      <label>Facebook URL<input type="text" name="facebook_url" value="{{.Form.FacebookURL}}"></label>
+      <label>LinkedIn URL<input type="text" name="linkedin_url" value="{{.Form.LinkedInURL}}"></label>
+    </div>
+  </section>
+  <div class="admin-actions">
+    <button class="btn btn-primary" type="submit">Ayarları kaydet</button>
+  </div>
+</form>
+{{template "admin_shell_end" .}}
+{{end}}

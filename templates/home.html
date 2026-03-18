@@ -1,0 +1,82 @@
+﻿{{define "templates/home.html"}}
+{{template "public_head" .}}
+{{template "public_nav" .}}
+<main>
+  <section class="hero hero-identity">
+    <div class="hero-orbit hero-orbit-a"></div>
+    <div class="hero-orbit hero-orbit-b"></div>
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">{{.Settings.TaglineTR}}</p>
+        <div class="hero-badge">Toplumsal dayanışma ve kamusal fayda</div>
+        <h1>{{.Page.Title}}</h1>
+        <p class="lead">{{.Page.Intro}}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/contact">Bize ulaşın</a>
+          <a class="btn btn-secondary" href="/announcements">Duyurular</a>
+        </div>
+      </div>
+      <aside class="hero-card hero-brief">
+        <p class="eyebrow">Odak Alanı</p>
+        <h2>Topluluk odaklı etki</h2>
+        <p>{{.Page.Body}}</p>
+        <div class="hero-metrics">
+          <div>
+            <strong>Ortak üretim</strong>
+            <span>Yerel ihtiyaçları önceleyen program akışı</span>
+          </div>
+          <div>
+            <strong>Kalıcı ilişki</strong>
+            <span>Gönüllüler, paydaşlar ve katılımcılarla süreklilik</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section-stack">
+    <div class="container">
+      {{range .Sections}}
+      <article class="content-card editorial-card">
+        <div class="content-card-copy">
+          <p class="eyebrow">{{sectionLabel .SectionKey}}</p>
+          <h2>{{.Title}}</h2>
+          <h3>{{.Subtitle}}</h3>
+          <p>{{.Body}}</p>
+          {{if .CTAName}}<a class="text-link" href="{{.CTAURL}}">{{.CTAName}}</a>{{end}}
+        </div>
+        {{if .Media}}
+        <div class="content-card-media">
+          <img src="{{mediaURL .Media.FileName}}" alt="{{.Media.AltTR}}">
+        </div>
+        {{end}}
+      </article>
+      {{end}}
+    </div>
+  </section>
+
+  <section class="announcements-panel">
+    <div class="container">
+      <div class="section-heading announcements-heading">
+        <div>
+          <p class="eyebrow">Güncel</p>
+          <h2>Son duyurular</h2>
+        </div>
+        <a class="text-link" href="/announcements">Tümünü gör</a>
+      </div>
+      <div class="posts-grid posts-grid-editorial">
+        {{range .LatestPosts}}
+        <article class="post-card post-card-editorial">
+          <p class="post-date">{{if .PublishedAt.Valid}}{{fmtDate .PublishedAt.Time}}{{else}}{{fmtDate .CreatedAt}}{{end}}</p>
+          <h3><a href="/announcements/{{.Slug}}">{{.TitleTR}}</a></h3>
+          <p>{{.SummaryTR}}</p>
+        </article>
+        {{else}}
+        <p class="empty-state">Henüz duyuru yok.</p>
+        {{end}}
+      </div>
+    </div>
+  </section>
+</main>
+{{template "public_footer" .}}
+{{end}}

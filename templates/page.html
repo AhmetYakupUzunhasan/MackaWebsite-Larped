@@ -1,0 +1,58 @@
+﻿{{define "templates/page.html"}}
+{{template "public_head" .}}
+{{template "public_nav" .}}
+<main class="inner-page">
+  <div class="container narrow">
+    <p class="eyebrow">{{.Settings.TaglineTR}}</p>
+    <h1>{{.Page.Title}}</h1>
+    <p class="lead">{{.Page.Intro}}</p>
+    <div class="rich-text">{{nl2br .Page.Body}}</div>
+
+    {{if eq .Page.Slug "contact"}}
+    <section class="contact-shell">
+      <aside class="contact-side">
+        <article class="contact-mini-card">
+          <p class="eyebrow">İletişim</p>
+          <h2>Doğrudan ulaşın</h2>
+          <div class="contact-points">
+            <div>
+              <strong>E-posta</strong>
+              <p>{{.Settings.ContactEmail}}</p>
+            </div>
+            <div>
+              <strong>Telefon</strong>
+              <p>{{.Settings.ContactPhone}}</p>
+            </div>
+            <div>
+              <strong>Adres</strong>
+              <p>{{.Settings.AddressTR}}</p>
+            </div>
+          </div>
+        </article>
+      </aside>
+      <section class="contact-panel contact-form-panel">
+        {{if $.FlashSuccess}}<div class="flash success">{{$.FlashSuccess}}</div>{{end}}
+        <form method="post" action="/contact" class="stack-form contact-form">
+          <label>Ad soyad
+            <input type="text" name="name" autocomplete="name" required>
+          </label>
+          <label>E-posta
+            <input type="email" name="email" inputmode="email" autocomplete="email" required>
+          </label>
+          <label>Konu
+            <input type="text" name="subject" autocomplete="organization-title">
+          </label>
+          <label>Mesaj
+            <textarea name="message" rows="7" required></textarea>
+          </label>
+          <div class="contact-actions">
+            <button class="btn btn-primary contact-submit" type="submit">Mesajı gönder</button>
+          </div>
+        </form>
+      </section>
+    </section>
+    {{end}}
+  </div>
+</main>
+{{template "public_footer" .}}
+{{end}}

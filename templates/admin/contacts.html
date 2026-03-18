@@ -1,0 +1,30 @@
+﻿{{define "templates/admin/contacts.html"}}
+{{template "admin_shell_start" .}}
+<section class="panel">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Gelen Kutusu</p>
+      <h2>İletişim mesajları</h2>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Ad</th><th>E-posta</th><th>Konu</th><th>Mesaj</th><th>Tarih</th></tr></thead>
+      <tbody>
+        {{range .Contacts}}
+        <tr>
+          <td>{{.Name}}</td>
+          <td>{{.Email}}</td>
+          <td>{{.Subject}}</td>
+          <td>{{.Message}}</td>
+          <td>{{fmtDate .CreatedAt}}</td>
+        </tr>
+        {{else}}
+        <tr><td colspan="5">Henüz mesaj gelmedi.</td></tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</section>
+{{template "admin_shell_end" .}}
+{{end}}

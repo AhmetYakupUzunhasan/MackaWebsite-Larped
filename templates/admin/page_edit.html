@@ -1,0 +1,20 @@
+﻿{{define "templates/admin/page_edit.html"}}
+{{template "admin_shell_start" .}}
+<form method="post" class="stack-form">
+  <section class="panel admin-form-panel">
+    <p class="eyebrow">{{.Page.Slug}}</p>
+    <h2>Sayfa içeriği</h2>
+    <input type="hidden" name="slug" value="{{.Page.Slug}}">
+    <input type="hidden" name="language" value="tr">
+    <label>Başlık<input type="text" name="title" value="{{.Page.Title}}"></label>
+    <label>Kısa giriş<textarea name="intro" rows="4">{{.Page.Intro}}</textarea></label>
+    <label>İçerik<textarea name="body" rows="12">{{.Page.Body}}</textarea></label>
+    <label>SEO açıklaması<textarea name="seo_description" rows="3">{{.Page.SEODescription}}</textarea></label>
+  </section>
+  <div class="admin-actions">
+    <a class="btn btn-secondary" href="/admin/pages">Geri dön</a>
+    <button class="btn btn-primary" type="submit">Sayfayı kaydet</button>
+  </div>
+</form>
+{{template "admin_shell_end" .}}
+{{end}}

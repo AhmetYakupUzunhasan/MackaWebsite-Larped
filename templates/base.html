@@ -1,0 +1,47 @@
+﻿{{define "public_head"}}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{if .Page.Title}}{{.Page.Title}} | {{end}}{{.Settings.AssociationNameTR}}</title>
+  <meta name="description" content="{{if .Page.SEODescription}}{{.Page.SEODescription}}{{else}}{{.Settings.SEODescriptionTR}}{{end}}">
+  <link rel="stylesheet" href="/static/css/site.css">
+</head>
+<body>
+{{end}}
+
+{{define "public_nav"}}
+<header class="site-header">
+  <div class="container nav-row nav-row-simple">
+    <a class="brand" href="/">
+      <span class="brand-kicker">{{.Settings.TaglineTR}}</span>
+      <strong>{{.Settings.AssociationNameTR}}</strong>
+    </a>
+    <nav class="main-nav">
+      <a href="/">{{.Settings.NavHomeTR}}</a>
+      <a href="/about">{{.Settings.NavAboutTR}}</a>
+      <a href="/announcements">{{.Settings.NavPostsTR}}</a>
+      <a href="/contact">{{.Settings.NavContactTR}}</a>
+    </nav>
+  </div>
+</header>
+{{end}}
+
+{{define "public_footer"}}
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <strong>{{.Settings.AssociationNameTR}}</strong>
+      <p>{{.Settings.FooterTextTR}}</p>
+    </div>
+    <div>
+      <p>{{.Settings.ContactEmail}}</p>
+      <p>{{.Settings.ContactPhone}}</p>
+      <p>{{.Settings.AddressTR}}</p>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
+{{end}}

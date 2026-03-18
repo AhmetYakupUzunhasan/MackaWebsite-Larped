@@ -1,0 +1,28 @@
+﻿{{define "templates/admin/login.html"}}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Yönetici Girişi</title>
+  <link rel="stylesheet" href="/static/css/site.css">
+</head>
+<body class="login-body">
+  <main class="login-card login-card-wide">
+    <p class="eyebrow">Yönetim Paneli</p>
+    <h1>Yönetici Girişi</h1>
+    <p>Site içeriğini, ana sayfa bölümlerini, duyuruları ve medya kütüphanesini buradan yönetin.</p>
+    {{if .Error}}<div class="flash error">{{.Error}}</div>{{end}}
+    <form method="post" class="stack-form">
+      <label>Kullanıcı adı
+        <input type="text" name="username" required>
+      </label>
+      <label>Şifre
+        <input type="password" name="password" required>
+      </label>
+      <button class="btn btn-primary" type="submit">Giriş yap</button>
+    </form>
+  </main>
+</body>
+</html>
+{{end}}

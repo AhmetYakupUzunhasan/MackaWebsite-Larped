@@ -1,0 +1,45 @@
+﻿{{define "templates/admin/posts.html"}}
+{{template "admin_shell_start" .}}
+<section class="panel">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Yayın Akışı</p>
+      <h2>Duyurular</h2>
+    </div>
+    <a class="btn btn-primary" href="/admin/posts/new">Yeni duyuru</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Başlık</th><th>Slug</th><th>Durum</th><th>Güncelleme</th><th>İşlemler</th></tr></thead>
+      <tbody>
+        {{range .Posts}}
+        <tr>
+          <td>{{.TitleTR}}</td>
+          <td>{{.Slug}}</td>
+          <td><span class="status-pill {{if .Published}}status-live{{else}}status-draft{{end}}">{{if .Published}}Yayında{{else}}Taslak{{end}}</span></td>
+          <td>{{fmtDate .UpdatedAt}}</td>
+          <td>
+            <div class="row-actions">
+              <a class="btn btn-secondary btn-inline-action" href="/admin/posts/edit?id={{.ID}}">Düzenle</a>
+              {{if not .Published}}
+              <form method="post" action="/admin/posts/publish">
+                <input type="hidden" name="id" value="{{.ID}}">
+                <button class="btn btn-primary btn-inline-action" type="submit">Yayınla</button>
+              </form>
+              {{end}}
+              <form method="post" action="/admin/posts/delete">
+                <input type="hidden" name="id" value="{{.ID}}">
+                <button class="btn btn-secondary btn-inline-action" type="submit">Sil</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {{else}}
+        <tr><td colspan="5">Henüz duyuru eklenmedi.</td></tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</section>
+{{template "admin_shell_end" .}}
+{{end}}

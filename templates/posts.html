@@ -1,0 +1,22 @@
+﻿{{define "templates/posts.html"}}
+{{template "public_head" .}}
+{{template "public_nav" .}}
+<main class="inner-page">
+  <div class="container">
+    <p class="eyebrow">Duyurular</p>
+    <h1>Güncel paylaşımlar</h1>
+    <div class="posts-grid">
+      {{range .Posts}}
+      <article class="post-card">
+        <p class="post-date">{{if .PublishedAt.Valid}}{{fmtDate .PublishedAt.Time}}{{else}}{{fmtDate .CreatedAt}}{{end}}</p>
+        <h2><a href="/announcements/{{.Slug}}">{{.TitleTR}}</a></h2>
+        <p>{{.SummaryTR}}</p>
+      </article>
+      {{else}}
+      <p class="empty-state">Henüz yayımlanmış duyuru bulunmuyor.</p>
+      {{end}}
+    </div>
+  </div>
+</main>
+{{template "public_footer" .}}
+{{end}}

@@ -1,0 +1,16 @@
+﻿{{define "templates/post_detail.html"}}
+{{template "public_head" .}}
+{{template "public_nav" .}}
+<main class="inner-page">
+  <article class="container narrow article-detail">
+    <p class="post-date">{{if .Post.PublishedAt.Valid}}{{fmtDate .Post.PublishedAt.Time}}{{else}}{{fmtDate .Post.CreatedAt}}{{end}}</p>
+    <h1>{{.Post.TitleTR}}</h1>
+    <p class="lead">{{.Post.SummaryTR}}</p>
+    {{if .Media}}
+    <img class="hero-image" src="{{mediaURL .Media.FileName}}" alt="{{.Media.AltTR}}">
+    {{end}}
+    <div class="rich-text">{{nl2br .Post.BodyTR}}</div>
+  </article>
+</main>
+{{template "public_footer" .}}
+{{end}}

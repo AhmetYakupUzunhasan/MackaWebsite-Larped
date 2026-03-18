@@ -1,0 +1,17 @@
+﻿{{define "templates/admin/sections.html"}}
+{{template "admin_shell_start" .}}
+<section class="card-grid admin-card-grid">
+  {{range .Sections}}
+  <article class="panel admin-list-card">
+    <p class="eyebrow">{{sectionLabel .SectionKey}}</p>
+    <h2>{{.Title}}</h2>
+    <p>{{.Subtitle}}</p>
+    <div class="admin-card-footer">
+      <span>Sıra: {{.SortOrder}}</span>
+      <a class="btn btn-primary" href="/admin/sections/edit?id={{.ID}}">Düzenle</a>
+    </div>
+  </article>
+  {{end}}
+</section>
+{{template "admin_shell_end" .}}
+{{end}}
