@@ -462,9 +462,14 @@ input, textarea, select {
   font-size: 2rem;
 }
 
+.dashboard-flow {
+  display: grid;
+  gap: 40px;
+}
+
 .dashboard-stats {
-  gap: 22px;
-  margin-bottom: 30px;
+  gap: 28px;
+  margin-bottom: 0;
 }
 
 .dashboard-stat-card {
@@ -494,8 +499,9 @@ input, textarea, select {
 }
 
 .dashboard-actions {
-  gap: 24px;
-  margin-bottom: 32px;
+  gap: 28px;
+  margin-bottom: 0;
+  padding-top: 6px;
 }
 
 .admin-list-card {
@@ -519,7 +525,7 @@ input, textarea, select {
 }
 
 .dashboard-table-panel {
-  padding-top: 28px;
+  padding-top: 30px;
 }
 
 .admin-list-card h2,
@@ -688,6 +694,10 @@ th, td {
   .dashboard-stats,
   .dashboard-actions {
     gap: 18px;
+  }
+
+  .dashboard-flow {
+    gap: 26px;
   }
 
   .dashboard-stat-card,
