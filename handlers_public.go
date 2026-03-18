@@ -9,22 +9,22 @@ import (
 )
 
 func (a *App) handleHome(w http.ResponseWriter, r *http.Request, lang Language) {
-	settings, err := getSiteSettings(r.Context(), a.db)
+	settings, err := a.cachedSettings(r.Context())
 	if err != nil {
 		a.renderError(w, http.StatusInternalServerError, "failed to load site settings")
 		return
 	}
-	page, err := getPage(r.Context(), a.db, "home", lang)
+	page, err := a.cachedPage(r.Context(), "home", lang)
 	if err != nil {
 		a.renderError(w, http.StatusInternalServerError, "failed to load home page")
 		return
 	}
-	sections, err := getSectionsForPage(r.Context(), a.db, "home", lang)
+	sections, err := a.cachedSections(r.Context(), "home", lang)
 	if err != nil {
 		a.renderError(w, http.StatusInternalServerError, "failed to load sections")
 		return
 	}
-	posts, err := listPostCards(r.Context(), a.db, false, 3)
+	posts, err := a.cachedPublishedPosts(r.Context(), 3)
 	if err != nil {
 		a.renderError(w, http.StatusInternalServerError, "failed to load posts")
 		return
@@ -41,12 +41,12 @@ func (a *App) handleHome(w http.ResponseWriter, r *http.Request, lang Language) 
 }
 
 func (a *App) handlePage(w http.ResponseWriter, r *http.Request, slug string, lang Language) {
-	settings, err := getSiteSettings(r.Context(), a.db)
+	settings, err := a.cachedSettings(r.Context())
 	if err != nil {
 		a.renderError(w, http.StatusInternalServerError, "failed to load site settings")
 		return
 	}
-	page, err := getPage(r.Context(), a.db, slug, lang)
+	page, err := a.cachedPage(r.Context(), slug, lang)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			http.NotFound(w, r)
@@ -59,12 +59,12 @@ func (a *App) handlePage(w http.ResponseWriter, r *http.Request, slug string, la
 }
 
 func (a *App) handleAnnouncements(w http.ResponseWriter, r *http.Request, lang Language) {
-	settings, err := getSiteSettings(r.Context(), a.db)
+	settings, err := a.cachedSettings(r.Context())
 	if err != nil {
 		a.renderError(w, http.StatusInternalServerError, "failed to load site settings")
 		return
 	}
-	posts, err := listPostCards(r.Context(), a.db, false, 0)
+	posts, err := a.cachedPublishedPosts(r.Context(), 0)
 	if err != nil {
 		a.renderError(w, http.StatusInternalServerError, "failed to load announcements")
 		return
@@ -78,12 +78,12 @@ func (a *App) handleAnnouncements(w http.ResponseWriter, r *http.Request, lang L
 }
 
 func (a *App) handleAnnouncementDetail(w http.ResponseWriter, r *http.Request, lang Language, slug string) {
-	settings, err := getSiteSettings(r.Context(), a.db)
+	settings, err := a.cachedSettings(r.Context())
 	if err != nil {
 		a.renderError(w, http.StatusInternalServerError, "failed to load site settings")
 		return
 	}
-	post, err := getPostBySlug(r.Context(), a.db, slug, false)
+	post, media, err := a.cachedPostDetail(r.Context(), slug)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			http.NotFound(w, r)
@@ -91,14 +91,6 @@ func (a *App) handleAnnouncementDetail(w http.ResponseWriter, r *http.Request, l
 		}
 		a.renderError(w, http.StatusInternalServerError, "failed to load announcement")
 		return
-	}
-	var media *MediaAsset
-	if post.CoverImageID.Valid {
-		media, err = getMedia(r.Context(), a.db, post.CoverImageID.Int64)
-		if err != nil {
-			a.renderError(w, http.StatusInternalServerError, "failed to load media")
-			return
-		}
 	}
 	a.render(w, "templates/post_detail.html", PostDetailData{
 		Settings: settings,

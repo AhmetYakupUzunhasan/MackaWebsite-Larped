@@ -462,6 +462,29 @@ input, textarea, select {
   font-size: 2rem;
 }
 
+.dashboard-stats {
+  gap: 22px;
+  margin-bottom: 30px;
+}
+
+.dashboard-stat-card {
+  min-height: 112px;
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  padding: 26px 24px;
+}
+
+.dashboard-stat-card strong {
+  font-size: clamp(2.2rem, 2vw, 2.7rem);
+  line-height: 0.95;
+}
+
+.dashboard-stat-card span {
+  font-size: 1.02rem;
+  color: var(--ink);
+}
+
 .card-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -470,9 +493,33 @@ input, textarea, select {
   margin-bottom: 20px;
 }
 
+.dashboard-actions {
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
 .admin-list-card {
   display: grid;
   gap: 12px;
+}
+
+.dashboard-action-card {
+  min-height: 300px;
+  padding: 28px 24px 24px;
+  gap: 16px;
+}
+
+.dashboard-action-card p:not(.eyebrow) {
+  max-width: 30ch;
+}
+
+.dashboard-action-card .btn {
+  width: 100%;
+  margin-top: auto;
+}
+
+.dashboard-table-panel {
+  padding-top: 28px;
 }
 
 .admin-list-card h2,
@@ -638,6 +685,16 @@ th, td {
     grid-template-columns: 1fr;
   }
 
+  .dashboard-stats,
+  .dashboard-actions {
+    gap: 18px;
+  }
+
+  .dashboard-stat-card,
+  .dashboard-action-card {
+    min-height: auto;
+  }
+
   .main-nav, .admin-card-footer {
     grid-auto-flow: row;
     justify-items: start;
@@ -739,6 +796,10 @@ th, td {
     padding: 18px;
   }
 
+  .dashboard-action-card {
+    padding: 24px 20px 20px;
+  }
+
   .admin-sidebar {
     padding: 22px 18px;
   }
@@ -794,6 +855,10 @@ th, td {
   .login-card {
     padding: 18px;
     border-radius: 20px;
+  }
+
+  .dashboard-action-card .btn {
+    min-height: 50px;
   }
 
   .hero-metrics {

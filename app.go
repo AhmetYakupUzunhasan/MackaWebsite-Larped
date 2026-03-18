@@ -18,6 +18,7 @@ type App struct {
 	config    Config
 	db        *sql.DB
 	templates *template.Template
+	cache     *contentCache
 }
 
 type contextKey string
@@ -26,8 +27,8 @@ const adminUserKey contextKey = "adminUser"
 
 func (a *App) routes() http.Handler {
 	mux := http.NewServeMux()
-	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	mux.Handle("/uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir(a.config.UploadDir))))
+	mux.Handle("/static/", http.StripPrefix("/static/", cacheControl(http.FileServer(http.Dir("static")), "public, max-age=86400")))
+	mux.Handle("/uploads/", http.StripPrefix("/uploads/", cacheControl(http.FileServer(http.Dir(a.config.UploadDir)), "public, max-age=3600")))
 	mux.HandleFunc("/admin/login", a.handleAdminLogin)
 	mux.HandleFunc("/admin/logout", a.handleAdminLogout)
 	mux.Handle("/admin/", a.requireAdmin(http.HandlerFunc(a.adminRouter)))
@@ -242,4 +243,11 @@ func fileNameForUpload(original string) string {
 	ext := path.Ext(original)
 	base := strings.TrimSuffix(original, ext)
 	return fmt.Sprintf("%s-%d%s", slugify(base), time.Now().UnixNano(), strings.ToLower(ext))
+}
+
+func cacheControl(next http.Handler, value string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", value)
+		next.ServeHTTP(w, r)
+	})
 }

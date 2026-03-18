@@ -33,6 +33,10 @@ func main() {
 	}
 	defer db.Close()
 
+	if err := tuneSQLite(db); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := runMigrations(context.Background(), db, embeddedFiles); err != nil {
 		log.Fatal(err)
 	}
@@ -49,6 +53,7 @@ func main() {
 		config:    cfg,
 		db:        db,
 		templates: tpl,
+		cache:     newContentCache(),
 	}
 
 	listener, port, err := listenWithFallback(cfg.Port)
@@ -130,4 +135,24 @@ func listenWithFallback(preferredPort string) (net.Listener, string, error) {
 		lastErr = err
 	}
 	return nil, "", lastErr
+}
+
+func tuneSQLite(db *sql.DB) error {
+	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(1)
+	db.SetConnMaxLifetime(0)
+
+	pragmas := []string{
+		"PRAGMA journal_mode=WAL;",
+		"PRAGMA synchronous=NORMAL;",
+		"PRAGMA foreign_keys=ON;",
+		"PRAGMA busy_timeout=5000;",
+		"PRAGMA temp_store=MEMORY;",
+	}
+	for _, pragma := range pragmas {
+		if _, err := db.Exec(pragma); err != nil {
+			return err
+		}
+	}
+	return nil
 }

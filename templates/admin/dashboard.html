@@ -1,33 +1,33 @@
 ﻿{{define "templates/admin/dashboard.html"}}
 {{template "admin_shell_start" .}}
-<section class="stats-grid">
-  <article class="stat-card"><strong>{{.PageCount}}</strong><span>Sayfa</span></article>
-  <article class="stat-card"><strong>{{.SectionCount}}</strong><span>Bölüm</span></article>
-  <article class="stat-card"><strong>{{.PostCount}}</strong><span>Duyuru</span></article>
-  <article class="stat-card"><strong>{{.MediaCount}}</strong><span>Medya</span></article>
-  <article class="stat-card"><strong>{{.ContactCount}}</strong><span>Mesaj</span></article>
+<section class="stats-grid dashboard-stats">
+  <article class="stat-card dashboard-stat-card"><strong>{{.PageCount}}</strong><span>Sayfa</span></article>
+  <article class="stat-card dashboard-stat-card"><strong>{{.SectionCount}}</strong><span>Bölüm</span></article>
+  <article class="stat-card dashboard-stat-card"><strong>{{.PostCount}}</strong><span>Duyuru</span></article>
+  <article class="stat-card dashboard-stat-card"><strong>{{.MediaCount}}</strong><span>Medya</span></article>
+  <article class="stat-card dashboard-stat-card"><strong>{{.ContactCount}}</strong><span>Mesaj</span></article>
 </section>
-<section class="card-grid admin-card-grid">
-  <article class="panel admin-list-card">
+<section class="card-grid admin-card-grid dashboard-actions">
+  <article class="panel admin-list-card dashboard-action-card">
     <p class="eyebrow">Hızlı İşlem</p>
     <h2>Duyuru ekle</h2>
     <p>Yeni bir duyuru yayınlamak için doğrudan düzenleme ekranına gidin.</p>
     <a class="btn btn-primary" href="/admin/posts/new">Yeni duyuru</a>
   </article>
-  <article class="panel admin-list-card">
+  <article class="panel admin-list-card dashboard-action-card">
     <p class="eyebrow">Hızlı İşlem</p>
     <h2>Ana sayfayı güncelle</h2>
     <p>Hero, faaliyetler ve çağrı alanlarını tek yerden düzenleyin.</p>
     <a class="btn btn-primary" href="/admin/sections">Bölümleri aç</a>
   </article>
-  <article class="panel admin-list-card">
+  <article class="panel admin-list-card dashboard-action-card">
     <p class="eyebrow">Hızlı İşlem</p>
     <h2>Medya yükle</h2>
     <p>Kullanılacak görselleri kütüphaneye yükleyin ve bölümlerde seçin.</p>
     <a class="btn btn-primary" href="/admin/media">Medya alanı</a>
   </article>
 </section>
-<section class="panel">
+<section class="panel dashboard-table-panel">
   <div class="section-heading">
     <h2>Son iletişim mesajları</h2>
     <a class="text-link" href="/admin/contacts">Tüm mesajları gör</a>

@@ -107,6 +107,7 @@ func (a *App) handleAdminSettings(w http.ResponseWriter, r *http.Request) {
 			a.renderError(w, http.StatusInternalServerError, "failed to save settings")
 			return
 		}
+		a.invalidateContentCache()
 		a.setFlash(w, "Site ayarları güncellendi.")
 		http.Redirect(w, r, "/admin/settings", http.StatusSeeOther)
 		return
@@ -166,6 +167,7 @@ func (a *App) handleAdminPageEdit(w http.ResponseWriter, r *http.Request) {
 			a.renderError(w, http.StatusInternalServerError, "failed to save page")
 			return
 		}
+		a.invalidateContentCache()
 		a.setFlash(w, "Sayfa güncellendi.")
 		http.Redirect(w, r, "/admin/pages", http.StatusSeeOther)
 		return
@@ -226,6 +228,7 @@ func (a *App) handleAdminSectionEdit(w http.ResponseWriter, r *http.Request) {
 			a.renderError(w, http.StatusInternalServerError, "failed to save section")
 			return
 		}
+		a.invalidateContentCache()
 		a.setFlash(w, "Bölüm güncellendi.")
 		http.Redirect(w, r, "/admin/sections", http.StatusSeeOther)
 		return
@@ -306,6 +309,7 @@ func (a *App) handleAdminPostForm(w http.ResponseWriter, r *http.Request, id int
 				a.renderError(w, http.StatusInternalServerError, "failed to save media record")
 				return
 			}
+			a.invalidateContentCache()
 			coverImageID = nullInt64(mediaID)
 		}
 		post = Post{
@@ -334,6 +338,7 @@ func (a *App) handleAdminPostForm(w http.ResponseWriter, r *http.Request, id int
 			a.renderError(w, http.StatusInternalServerError, "failed to save post")
 			return
 		}
+		a.invalidateContentCache()
 		a.setFlash(w, "Duyuru kaydedildi.")
 		http.Redirect(w, r, "/admin/posts", http.StatusSeeOther)
 		return
@@ -350,6 +355,7 @@ func (a *App) handleAdminPostDelete(w http.ResponseWriter, r *http.Request) {
 		a.renderError(w, http.StatusInternalServerError, "failed to delete post")
 		return
 	}
+	a.invalidateContentCache()
 	a.setFlash(w, "Duyuru silindi.")
 	http.Redirect(w, r, "/admin/posts", http.StatusSeeOther)
 }
@@ -371,6 +377,7 @@ func (a *App) handleAdminPostPublish(w http.ResponseWriter, r *http.Request) {
 		a.renderError(w, http.StatusInternalServerError, "failed to publish post")
 		return
 	}
+	a.invalidateContentCache()
 	a.setFlash(w, "Duyuru yayına alındı.")
 	http.Redirect(w, r, "/admin/posts", http.StatusSeeOther)
 }
@@ -410,6 +417,7 @@ func (a *App) handleAdminMedia(w http.ResponseWriter, r *http.Request) {
 			a.renderError(w, http.StatusInternalServerError, "failed to save media record")
 			return
 		}
+		a.invalidateContentCache()
 		a.setFlash(w, "Medya yüklendi.")
 		http.Redirect(w, r, "/admin/media", http.StatusSeeOther)
 		return
@@ -438,6 +446,7 @@ func (a *App) handleAdminMediaDelete(w http.ResponseWriter, r *http.Request) {
 		_ = deleteMedia(r.Context(), a.db, id)
 		_ = os.Remove(filepath.Join(a.config.UploadDir, media.FileName))
 	}
+	a.invalidateContentCache()
 	a.setFlash(w, "Medya silindi.")
 	http.Redirect(w, r, "/admin/media", http.StatusSeeOther)
 }
