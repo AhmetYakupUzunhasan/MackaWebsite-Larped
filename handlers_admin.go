@@ -11,22 +11,23 @@ import (
 
 func (a *App) handleAdminLogin(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		if cookie, err := r.Cookie(a.config.SessionName); err == nil && cookie.Value != "" {
+		if user, err := a.authenticatedAdmin(r); err == nil && user != nil {
 			http.Redirect(w, r, "/admin/", http.StatusSeeOther)
 			return
 		}
+		a.clearSession(w)
 		a.render(w, "templates/admin/login.html", map[string]any{
 			"Error": r.URL.Query().Get("error"),
 		})
 		return
 	}
 	if err := r.ParseForm(); err != nil {
-		http.Redirect(w, r, "/admin/login?error=Geçersiz+istek", http.StatusSeeOther)
+		http.Redirect(w, r, "/admin/login?error=Ge\u00e7ersiz+istek", http.StatusSeeOther)
 		return
 	}
 	user, err := getAdminUserByUsername(r.Context(), a.db, r.FormValue("username"))
 	if err != nil || user == nil || user.PasswordHash != hashPassword(r.FormValue("password")) {
-		http.Redirect(w, r, "/admin/login?error=Kullanıcı+adı+veya+şifre+hatalı", http.StatusSeeOther)
+		http.Redirect(w, r, "/admin/login?error=Kullan\u0131c\u0131+ad\u0131+veya+\u015fifre+hatal\u0131", http.StatusSeeOther)
 		return
 	}
 	a.signIn(w, user)
@@ -43,20 +44,20 @@ func (a *App) handleAdminLogout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) handleAdminDashboard(w http.ResponseWriter, r *http.Request) {
-	layout, err := adminLayoutData(r.Context(), a.db, "Yönetim Paneli", a.currentAdmin(r))
+	layout, err := adminLayoutData(r.Context(), a.db, "Y\u00f6netim Paneli", a.currentAdmin(r))
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load dashboard")
+		a.renderError(w, http.StatusInternalServerError, "Y\u00f6netim paneli y\u00fcklenemedi.")
 		return
 	}
 	layout.Flash = a.readFlash(w, r)
 	counts, err := getDashboardCounts(r.Context(), a.db)
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to count records")
+		a.renderError(w, http.StatusInternalServerError, "Kay\u0131t say\u0131lar\u0131 al\u0131namad\u0131.")
 		return
 	}
 	contacts, err := listContactSubmissions(r.Context(), a.db, 5)
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load contacts")
+		a.renderError(w, http.StatusInternalServerError, "Mesajlar y\u00fcklenemedi.")
 		return
 	}
 	a.render(w, "templates/admin/dashboard.html", DashboardData{
@@ -64,77 +65,164 @@ func (a *App) handleAdminDashboard(w http.ResponseWriter, r *http.Request) {
 		PageCount:       counts["pages"],
 		SectionCount:    counts["sections"],
 		PostCount:       counts["posts"],
-		MediaCount:      counts["media"],
 		ContactCount:    counts["contacts"],
 		RecentContacts:  contacts,
 	})
 }
 
 func (a *App) handleAdminSettings(w http.ResponseWriter, r *http.Request) {
-	layout, err := adminLayoutData(r.Context(), a.db, "Site Ayarları", a.currentAdmin(r))
+	layout, err := adminLayoutData(r.Context(), a.db, "Site Ayarlar\u0131", a.currentAdmin(r))
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load settings")
+		a.renderError(w, http.StatusInternalServerError, "Site ayarlar\u0131 y\u00fcklenemedi.")
 		return
 	}
 	settings, err := getSiteSettings(r.Context(), a.db)
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load settings")
+		a.renderError(w, http.StatusInternalServerError, "Site ayarlar\u0131 y\u00fcklenemedi.")
 		return
 	}
+	passwordError := ""
 	if r.Method == http.MethodPost {
 		if err := r.ParseForm(); err != nil {
-			a.renderError(w, http.StatusBadRequest, "invalid form")
+			a.renderError(w, http.StatusBadRequest, "Form verisi okunamad\u0131.")
 			return
 		}
-		settings = SiteSettings{
-			ID:                1,
-			AssociationNameTR: r.FormValue("association_name_tr"),
-			TaglineTR:         r.FormValue("tagline_tr"),
-			FooterTextTR:      r.FormValue("footer_text_tr"),
-			ContactEmail:      r.FormValue("contact_email"),
-			ContactPhone:      r.FormValue("contact_phone"),
-			AddressTR:         r.FormValue("address_tr"),
-			InstagramURL:      r.FormValue("instagram_url"),
-			FacebookURL:       r.FormValue("facebook_url"),
-			LinkedInURL:       r.FormValue("linkedin_url"),
-			NavHomeTR:         r.FormValue("nav_home_tr"),
-			NavAboutTR:        r.FormValue("nav_about_tr"),
-			NavContactTR:      r.FormValue("nav_contact_tr"),
-			NavPostsTR:        r.FormValue("nav_posts_tr"),
-			SEODescriptionTR:  r.FormValue("seo_description_tr"),
-		}
-		if err := updateSiteSettings(r.Context(), a.db, settings); err != nil {
-			a.renderError(w, http.StatusInternalServerError, "failed to save settings")
+		if r.FormValue("form_name") == "password" {
+			admin := a.currentAdmin(r)
+			if admin == nil {
+				a.renderError(w, http.StatusUnauthorized, "Y\u00f6netici oturumu bulunamad\u0131.")
+				return
+			}
+			currentPassword := r.FormValue("current_password")
+			newPassword := r.FormValue("new_password")
+			confirmPassword := r.FormValue("confirm_password")
+			switch {
+			case currentPassword == "":
+				passwordError = "L\u00fctfen mevcut \u015fifrenizi girin."
+			case hashPassword(currentPassword) != admin.PasswordHash:
+				passwordError = "Mevcut \u015fifreniz hatal\u0131."
+			case len(newPassword) < 8:
+				passwordError = "Yeni \u015fifreniz en az 8 karakter olmal\u0131d\u0131r."
+			case newPassword != confirmPassword:
+				passwordError = "Yeni \u015fifre ile do\u011frulama birbiriyle e\u015fle\u015fmiyor."
+			case currentPassword == newPassword:
+				passwordError = "L\u00fctfen mevcut \u015fifreden farkl\u0131 bir \u015fifre se\u00e7in."
+			default:
+				newHash := hashPassword(newPassword)
+				if err := updateAdminUserPassword(r.Context(), a.db, admin.ID, newHash); err != nil {
+					a.renderError(w, http.StatusInternalServerError, "\u015eifre g\u00fcncellenemedi.")
+					return
+				}
+				a.clearSession(w)
+				a.setFlash(w, "Y\u00f6netici \u015fifresi g\u00fcncellendi. L\u00fctfen yeniden giri\u015f yap\u0131n.")
+				http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
+				return
+			}
+		} else {
+			settings = SiteSettings{
+				ID:                1,
+				AssociationNameTR: r.FormValue("association_name_tr"),
+				TaglineTR:         r.FormValue("tagline_tr"),
+				FooterTextTR:      r.FormValue("footer_text_tr"),
+				ContactEmail:      r.FormValue("contact_email"),
+				ContactPhone:      r.FormValue("contact_phone"),
+				AddressTR:         r.FormValue("address_tr"),
+				InstagramURL:      r.FormValue("instagram_url"),
+				FacebookURL:       r.FormValue("facebook_url"),
+				LinkedInURL:       r.FormValue("linkedin_url"),
+				NavHomeTR:         r.FormValue("nav_home_tr"),
+				NavAboutTR:        r.FormValue("nav_about_tr"),
+				NavContactTR:      r.FormValue("nav_contact_tr"),
+				NavPostsTR:        r.FormValue("nav_posts_tr"),
+				SEODescriptionTR:  r.FormValue("seo_description_tr"),
+			}
+			if err := updateSiteSettings(r.Context(), a.db, settings); err != nil {
+				a.renderError(w, http.StatusInternalServerError, "Site ayarlar\u0131 kaydedilemedi.")
+				return
+			}
+			a.invalidateContentCache()
+			a.setFlash(w, "Site ayarlar\u0131 g\u00fcncellendi.")
+			http.Redirect(w, r, "/admin/settings", http.StatusSeeOther)
 			return
 		}
-		a.invalidateContentCache()
-		a.setFlash(w, "Site ayarları güncellendi.")
-		http.Redirect(w, r, "/admin/settings", http.StatusSeeOther)
-		return
 	}
 	layout.Flash = a.readFlash(w, r)
-	a.render(w, "templates/admin/settings.html", AdminSettingsData{AdminLayoutData: layout, Form: settings})
+	a.render(w, "templates/admin/settings.html", AdminSettingsData{
+		AdminLayoutData: layout,
+		Form:            settings,
+		PasswordError:   passwordError,
+	})
+}
+
+func (a *App) handleAdminPassword(w http.ResponseWriter, r *http.Request) {
+	layout, err := adminLayoutData(r.Context(), a.db, "\u015eifre De\u011fi\u015ftir", a.currentAdmin(r))
+	if err != nil {
+		a.renderError(w, http.StatusInternalServerError, "\u015eifre sayfas\u0131 y\u00fcklenemedi.")
+		return
+	}
+	passwordError := ""
+	if r.Method == http.MethodPost {
+		if err := r.ParseForm(); err != nil {
+			a.renderError(w, http.StatusBadRequest, "Form verisi okunamad\u0131.")
+			return
+		}
+		admin := a.currentAdmin(r)
+		if admin == nil {
+			a.renderError(w, http.StatusUnauthorized, "Y\u00f6netici oturumu bulunamad\u0131.")
+			return
+		}
+		currentPassword := r.FormValue("current_password")
+		newPassword := r.FormValue("new_password")
+		confirmPassword := r.FormValue("confirm_password")
+		switch {
+		case currentPassword == "":
+			passwordError = "L\u00fctfen mevcut \u015fifrenizi girin."
+		case hashPassword(currentPassword) != admin.PasswordHash:
+			passwordError = "Mevcut \u015fifreniz hatal\u0131."
+		case len(newPassword) < 8:
+			passwordError = "Yeni \u015fifreniz en az 8 karakter olmal\u0131d\u0131r."
+		case newPassword != confirmPassword:
+			passwordError = "Yeni \u015fifre ile do\u011frulama birbiriyle e\u015fle\u015fmiyor."
+		case currentPassword == newPassword:
+			passwordError = "L\u00fctfen mevcut \u015fifreden farkl\u0131 bir \u015fifre se\u00e7in."
+		default:
+			newHash := hashPassword(newPassword)
+			if err := updateAdminUserPassword(r.Context(), a.db, admin.ID, newHash); err != nil {
+				a.renderError(w, http.StatusInternalServerError, "\u015eifre g\u00fcncellenemedi.")
+				return
+			}
+			a.clearSession(w)
+			a.setFlash(w, "Y\u00f6netici \u015fifresi g\u00fcncellendi. L\u00fctfen yeniden giri\u015f yap\u0131n.")
+			http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
+			return
+		}
+	}
+	layout.Flash = a.readFlash(w, r)
+	a.render(w, "templates/admin/password.html", AdminPasswordData{
+		AdminLayoutData: layout,
+		PasswordError:   passwordError,
+	})
 }
 
 func (a *App) handleAdminPages(w http.ResponseWriter, r *http.Request) {
 	layout, err := adminLayoutData(r.Context(), a.db, "Sayfalar", a.currentAdmin(r))
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load pages")
+		a.renderError(w, http.StatusInternalServerError, "Sayfalar y\u00fcklenemedi.")
 		return
 	}
 	layout.Flash = a.readFlash(w, r)
 	pages, err := listPages(r.Context(), a.db)
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to query pages")
+		a.renderError(w, http.StatusInternalServerError, "Sayfalar listelenemedi.")
 		return
 	}
 	a.render(w, "templates/admin/pages.html", AdminPagesData{AdminLayoutData: layout, Pages: pages})
 }
 
 func (a *App) handleAdminPageEdit(w http.ResponseWriter, r *http.Request) {
-	layout, err := adminLayoutData(r.Context(), a.db, "Sayfa Düzenle", a.currentAdmin(r))
+	layout, err := adminLayoutData(r.Context(), a.db, "Sayfa D\u00fczenle", a.currentAdmin(r))
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load page")
+		a.renderError(w, http.StatusInternalServerError, "Sayfa y\u00fcklenemedi.")
 		return
 	}
 	slug := r.URL.Query().Get("slug")
@@ -144,7 +232,7 @@ func (a *App) handleAdminPageEdit(w http.ResponseWriter, r *http.Request) {
 	lang := LangTR
 	page, err := getPage(r.Context(), a.db, slug, lang)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		a.renderError(w, http.StatusInternalServerError, "failed to load page")
+		a.renderError(w, http.StatusInternalServerError, "Sayfa y\u00fcklenemedi.")
 		return
 	}
 	if errors.Is(err, sql.ErrNoRows) {
@@ -152,7 +240,7 @@ func (a *App) handleAdminPageEdit(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.Method == http.MethodPost {
 		if err := r.ParseForm(); err != nil {
-			a.renderError(w, http.StatusBadRequest, "invalid form")
+			a.renderError(w, http.StatusBadRequest, "Form verisi okunamad\u0131.")
 			return
 		}
 		page = Page{
@@ -164,11 +252,11 @@ func (a *App) handleAdminPageEdit(w http.ResponseWriter, r *http.Request) {
 			SEODescription: r.FormValue("seo_description"),
 		}
 		if err := upsertPage(r.Context(), a.db, page); err != nil {
-			a.renderError(w, http.StatusInternalServerError, "failed to save page")
+			a.renderError(w, http.StatusInternalServerError, "Sayfa kaydedilemedi.")
 			return
 		}
 		a.invalidateContentCache()
-		a.setFlash(w, "Sayfa güncellendi.")
+		a.setFlash(w, "Sayfa g\u00fcncellendi.")
 		http.Redirect(w, r, "/admin/pages", http.StatusSeeOther)
 		return
 	}
@@ -176,45 +264,35 @@ func (a *App) handleAdminPageEdit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) handleAdminSections(w http.ResponseWriter, r *http.Request) {
-	layout, err := adminLayoutData(r.Context(), a.db, "Ana Sayfa Bölümleri", a.currentAdmin(r))
+	layout, err := adminLayoutData(r.Context(), a.db, "Ana Sayfa B\u00f6l\u00fcmleri", a.currentAdmin(r))
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load sections")
+		a.renderError(w, http.StatusInternalServerError, "B\u00f6l\u00fcmler y\u00fcklenemedi.")
 		return
 	}
 	layout.Flash = a.readFlash(w, r)
 	sections, err := listSections(r.Context(), a.db)
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to query sections")
+		a.renderError(w, http.StatusInternalServerError, "B\u00f6l\u00fcmler listelenemedi.")
 		return
 	}
-	media, err := listMedia(r.Context(), a.db)
-	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to query media")
-		return
-	}
-	a.render(w, "templates/admin/sections.html", AdminSectionsData{AdminLayoutData: layout, Sections: sections, Media: media})
+	a.render(w, "templates/admin/sections.html", AdminSectionsData{AdminLayoutData: layout, Sections: sections})
 }
 
 func (a *App) handleAdminSectionEdit(w http.ResponseWriter, r *http.Request) {
-	layout, err := adminLayoutData(r.Context(), a.db, "Bölüm Düzenle", a.currentAdmin(r))
+	layout, err := adminLayoutData(r.Context(), a.db, "B\u00f6l\u00fcm D\u00fczenle", a.currentAdmin(r))
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load section")
+		a.renderError(w, http.StatusInternalServerError, "B\u00f6l\u00fcm y\u00fcklenemedi.")
 		return
 	}
 	id := parseID(r.URL.Query().Get("id"))
 	section, err := getSection(r.Context(), a.db, id)
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load section")
-		return
-	}
-	media, err := listMedia(r.Context(), a.db)
-	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to query media")
+		a.renderError(w, http.StatusInternalServerError, "B\u00f6l\u00fcm y\u00fcklenemedi.")
 		return
 	}
 	if r.Method == http.MethodPost {
 		if err := r.ParseForm(); err != nil {
-			a.renderError(w, http.StatusBadRequest, "invalid form")
+			a.renderError(w, http.StatusBadRequest, "Form verisi okunamad\u0131.")
 			return
 		}
 		section.Title = r.FormValue("title")
@@ -223,29 +301,28 @@ func (a *App) handleAdminSectionEdit(w http.ResponseWriter, r *http.Request) {
 		section.CTAName = r.FormValue("cta_name")
 		section.CTAURL = r.FormValue("cta_url")
 		section.SortOrder = int(parseID(r.FormValue("sort_order")))
-		section.ImageID = nullInt64(parseID(r.FormValue("image_id")))
 		if err := updateSection(r.Context(), a.db, section); err != nil {
-			a.renderError(w, http.StatusInternalServerError, "failed to save section")
+			a.renderError(w, http.StatusInternalServerError, "B\u00f6l\u00fcm kaydedilemedi.")
 			return
 		}
 		a.invalidateContentCache()
-		a.setFlash(w, "Bölüm güncellendi.")
+		a.setFlash(w, "B\u00f6l\u00fcm g\u00fcncellendi.")
 		http.Redirect(w, r, "/admin/sections", http.StatusSeeOther)
 		return
 	}
-	a.render(w, "templates/admin/section_edit.html", AdminSectionEditData{AdminLayoutData: layout, Section: section, Media: media})
+	a.render(w, "templates/admin/section_edit.html", AdminSectionEditData{AdminLayoutData: layout, Section: section})
 }
 
 func (a *App) handleAdminPosts(w http.ResponseWriter, r *http.Request) {
 	layout, err := adminLayoutData(r.Context(), a.db, "Duyurular", a.currentAdmin(r))
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load posts")
+		a.renderError(w, http.StatusInternalServerError, "Duyurular y\u00fcklenemedi.")
 		return
 	}
 	layout.Flash = a.readFlash(w, r)
 	posts, err := listPosts(r.Context(), a.db, true)
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to query posts")
+		a.renderError(w, http.StatusInternalServerError, "Duyurular listelenemedi.")
 		return
 	}
 	a.render(w, "templates/admin/posts.html", AdminPostsData{AdminLayoutData: layout, Posts: posts})
@@ -260,37 +337,43 @@ func (a *App) handleAdminPostEdit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) handleAdminPostForm(w http.ResponseWriter, r *http.Request, id int64) {
-	layout, err := adminLayoutData(r.Context(), a.db, "Duyuru Düzenle", a.currentAdmin(r))
+	layout, err := adminLayoutData(r.Context(), a.db, "Duyuru D\u00fczenle", a.currentAdmin(r))
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load post")
+		a.renderError(w, http.StatusInternalServerError, "Duyuru y\u00fcklenemedi.")
 		return
 	}
 	post := Post{}
+	var cover *MediaAsset
 	if id > 0 {
 		post, err = getPostByID(r.Context(), a.db, id)
 		if err != nil {
-			a.renderError(w, http.StatusInternalServerError, "failed to load post")
+			a.renderError(w, http.StatusInternalServerError, "Duyuru y\u00fcklenemedi.")
 			return
 		}
-	}
-	media, err := listMedia(r.Context(), a.db)
-	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to query media")
-		return
+		if post.CoverImageID.Valid {
+			cover, err = getMedia(r.Context(), a.db, post.CoverImageID.Int64)
+			if err != nil {
+				a.renderError(w, http.StatusInternalServerError, "Kapak g\u00f6rseli y\u00fcklenemedi.")
+				return
+			}
+		}
 	}
 	if r.Method == http.MethodPost {
 		if err := r.ParseMultipartForm(10 << 20); err != nil {
-			a.renderError(w, http.StatusBadRequest, "invalid form")
+			a.renderError(w, http.StatusBadRequest, "Form verisi okunamad\u0131.")
 			return
 		}
-		coverImageID := nullInt64(parseID(r.FormValue("cover_image_id")))
+		coverImageID := post.CoverImageID
+		if r.FormValue("remove_cover") == "1" {
+			coverImageID = sqlNullInt64{}
+		}
 		file, header, fileErr := r.FormFile("cover_upload")
 		if fileErr == nil {
 			defer file.Close()
 			fileName := fileNameForUpload(header.Filename)
 			target := filepath.Join(a.config.UploadDir, fileName)
 			if err := saveUploadedFile(file, target); err != nil {
-				a.renderError(w, http.StatusInternalServerError, "failed to store file")
+				a.renderError(w, http.StatusInternalServerError, "Dosya kaydedilemedi.")
 				return
 			}
 			title := r.FormValue("cover_title")
@@ -306,7 +389,7 @@ func (a *App) handleAdminPostForm(w http.ResponseWriter, r *http.Request, id int
 				MimeType:     header.Header.Get("Content-Type"),
 			})
 			if err != nil {
-				a.renderError(w, http.StatusInternalServerError, "failed to save media record")
+				a.renderError(w, http.StatusInternalServerError, "G\u00f6rsel kayd\u0131 olu\u015fturulamad\u0131.")
 				return
 			}
 			a.invalidateContentCache()
@@ -335,7 +418,7 @@ func (a *App) handleAdminPostForm(w http.ResponseWriter, r *http.Request, id int
 			}
 		}
 		if _, err := savePost(r.Context(), a.db, post); err != nil {
-			a.renderError(w, http.StatusInternalServerError, "failed to save post")
+			a.renderError(w, http.StatusInternalServerError, "Duyuru kaydedilemedi.")
 			return
 		}
 		a.invalidateContentCache()
@@ -343,16 +426,16 @@ func (a *App) handleAdminPostForm(w http.ResponseWriter, r *http.Request, id int
 		http.Redirect(w, r, "/admin/posts", http.StatusSeeOther)
 		return
 	}
-	a.render(w, "templates/admin/post_edit.html", AdminPostEditData{AdminLayoutData: layout, Post: post, Media: media})
+	a.render(w, "templates/admin/post_edit.html", AdminPostEditData{AdminLayoutData: layout, Post: post, Cover: cover})
 }
 
 func (a *App) handleAdminPostDelete(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		a.renderError(w, http.StatusBadRequest, "invalid request")
+		a.renderError(w, http.StatusBadRequest, "Ge\u00e7ersiz istek.")
 		return
 	}
 	if err := deletePost(r.Context(), a.db, parseID(r.FormValue("id"))); err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to delete post")
+		a.renderError(w, http.StatusInternalServerError, "Duyuru silinemedi.")
 		return
 	}
 	a.invalidateContentCache()
@@ -362,47 +445,47 @@ func (a *App) handleAdminPostDelete(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) handleAdminPostPublish(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		a.renderError(w, http.StatusBadRequest, "invalid request")
+		a.renderError(w, http.StatusBadRequest, "Ge\u00e7ersiz istek.")
 		return
 	}
 	id := parseID(r.FormValue("id"))
 	post, err := getPostByID(r.Context(), a.db, id)
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load post")
+		a.renderError(w, http.StatusInternalServerError, "Duyuru y\u00fcklenemedi.")
 		return
 	}
 	post.Published = true
 	post.PublishedAt = nullTime(time.Now())
 	if _, err := savePost(r.Context(), a.db, post); err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to publish post")
+		a.renderError(w, http.StatusInternalServerError, "Duyuru yay\u0131mlanamad\u0131.")
 		return
 	}
 	a.invalidateContentCache()
-	a.setFlash(w, "Duyuru yayına alındı.")
+	a.setFlash(w, "Duyuru yay\u0131na al\u0131nd\u0131.")
 	http.Redirect(w, r, "/admin/posts", http.StatusSeeOther)
 }
 
 func (a *App) handleAdminMedia(w http.ResponseWriter, r *http.Request) {
-	layout, err := adminLayoutData(r.Context(), a.db, "Medya Kütüphanesi", a.currentAdmin(r))
+	layout, err := adminLayoutData(r.Context(), a.db, "Medya K\u00fct\u00fcphanesi", a.currentAdmin(r))
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load media")
+		a.renderError(w, http.StatusInternalServerError, "Medya k\u00fct\u00fcphanesi y\u00fcklenemedi.")
 		return
 	}
 	if r.Method == http.MethodPost {
 		if err := r.ParseMultipartForm(10 << 20); err != nil {
-			a.renderError(w, http.StatusBadRequest, "invalid upload")
+			a.renderError(w, http.StatusBadRequest, "Y\u00fckleme verisi okunamad\u0131.")
 			return
 		}
 		file, header, err := r.FormFile("file")
 		if err != nil {
-			a.renderError(w, http.StatusBadRequest, "file is required")
+			a.renderError(w, http.StatusBadRequest, "Dosya se\u00e7ilmelidir.")
 			return
 		}
 		defer file.Close()
 		fileName := fileNameForUpload(header.Filename)
 		target := filepath.Join(a.config.UploadDir, fileName)
 		if err := saveUploadedFile(file, target); err != nil {
-			a.renderError(w, http.StatusInternalServerError, "failed to store file")
+			a.renderError(w, http.StatusInternalServerError, "Dosya kaydedilemedi.")
 			return
 		}
 		_, err = insertMedia(r.Context(), a.db, MediaAsset{
@@ -414,18 +497,18 @@ func (a *App) handleAdminMedia(w http.ResponseWriter, r *http.Request) {
 			MimeType:     header.Header.Get("Content-Type"),
 		})
 		if err != nil {
-			a.renderError(w, http.StatusInternalServerError, "failed to save media record")
+			a.renderError(w, http.StatusInternalServerError, "G\u00f6rsel kayd\u0131 olu\u015fturulamad\u0131.")
 			return
 		}
 		a.invalidateContentCache()
-		a.setFlash(w, "Medya yüklendi.")
+		a.setFlash(w, "Medya y\u00fcklendi.")
 		http.Redirect(w, r, "/admin/media", http.StatusSeeOther)
 		return
 	}
 	layout.Flash = a.readFlash(w, r)
 	media, err := listMedia(r.Context(), a.db)
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to query media")
+		a.renderError(w, http.StatusInternalServerError, "Medya listelenemedi.")
 		return
 	}
 	a.render(w, "templates/admin/media.html", AdminMediaData{AdminLayoutData: layout, Media: media})
@@ -433,13 +516,13 @@ func (a *App) handleAdminMedia(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) handleAdminMediaDelete(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		a.renderError(w, http.StatusBadRequest, "invalid request")
+		a.renderError(w, http.StatusBadRequest, "Ge\u00e7ersiz istek.")
 		return
 	}
 	id := parseID(r.FormValue("id"))
 	media, err := getMedia(r.Context(), a.db, id)
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load media")
+		a.renderError(w, http.StatusInternalServerError, "Medya y\u00fcklenemedi.")
 		return
 	}
 	if media != nil {
@@ -452,15 +535,28 @@ func (a *App) handleAdminMediaDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) handleAdminContacts(w http.ResponseWriter, r *http.Request) {
-	layout, err := adminLayoutData(r.Context(), a.db, "İletişim Mesajları", a.currentAdmin(r))
+	layout, err := adminLayoutData(r.Context(), a.db, "\u0130leti\u015fim Mesajlar\u0131", a.currentAdmin(r))
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load contacts")
+		a.renderError(w, http.StatusInternalServerError, "Mesajlar y\u00fcklenemedi.")
 		return
 	}
 	contacts, err := listContactSubmissions(r.Context(), a.db, 0)
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to query contacts")
+		a.renderError(w, http.StatusInternalServerError, "Mesajlar listelenemedi.")
 		return
 	}
 	a.render(w, "templates/admin/contacts.html", AdminContactsData{AdminLayoutData: layout, Contacts: contacts})
+}
+
+func (a *App) handleAdminContactDelete(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		a.renderError(w, http.StatusBadRequest, "Ge\u00e7ersiz istek.")
+		return
+	}
+	if err := deleteContactSubmission(r.Context(), a.db, parseID(r.FormValue("id"))); err != nil {
+		a.renderError(w, http.StatusInternalServerError, "Mesaj silinemedi.")
+		return
+	}
+	a.setFlash(w, "Mesaj silindi.")
+	http.Redirect(w, r, "/admin/contacts", http.StatusSeeOther)
 }

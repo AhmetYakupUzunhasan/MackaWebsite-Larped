@@ -1,4 +1,4 @@
-﻿{{define "templates/admin/post_edit.html"}}
+{{define "templates/admin/post_edit.html"}}
 {{template "admin_shell_start" .}}
 <form method="post" enctype="multipart/form-data" class="stack-form">
   <section class="panel admin-form-panel">
@@ -9,30 +9,35 @@
     <label>Başlık<input type="text" name="title_tr" value="{{.Post.TitleTR}}"></label>
     <label>Özet<textarea name="summary_tr" rows="4">{{.Post.SummaryTR}}</textarea></label>
     <label>İçerik<textarea name="body_tr" rows="12">{{.Post.BodyTR}}</textarea></label>
-    <label>Kapak görseli
-      <select name="cover_image_id">
-        <option value="">Kapak görseli yok</option>
-        {{range .Media}}
-        <option value="{{.ID}}" {{if and $.Post.CoverImageID.Valid (eq $.Post.CoverImageID.Int64 .ID)}}selected{{end}}>{{.Title}} (#{{.ID}})</option>
-        {{end}}
-      </select>
-    </label>
+    {{if .Cover}}
     <div class="panel upload-inline-panel">
-      <p class="eyebrow">Hızlı Yükleme</p>
-      <h2>Yeni kapak görseli ekle</h2>
+      <p class="eyebrow">Mevcut Kapak</p>
+      <h2>Mevcut duyuru görseli</h2>
+      <div class="inline-cover-preview">
+        <img src="{{mediaURL .Cover.FileName}}" alt="{{.Cover.AltTR}}">
+      </div>
+      <label class="checkbox-row">
+        <input type="checkbox" name="remove_cover" value="1">
+        Kaydederken bu görseli kaldır
+      </label>
+    </div>
+    {{end}}
+    <div class="panel upload-inline-panel">
+      <p class="eyebrow">Kapak Yükleme</p>
+      <h2>Kapak görseli yükle</h2>
       <div class="two-col">
-        <label>Görsel başlığı<input type="text" name="cover_title" placeholder="Örn. Bahar buluşması afişi"></label>
-        <label>Alt metin<input type="text" name="cover_alt_tr" placeholder="Görsel açıklaması"></label>
+        <label>Görsel başlığı<input type="text" name="cover_title" placeholder="Bahar buluşması afişi"></label>
+        <label>Alternatif metin<input type="text" name="cover_alt_tr" placeholder="Kısa görsel açıklaması"></label>
       </div>
       <div class="file-picker-field">
-        <span>Bilgisayardan görsel seç</span>
+        <span>Bilgisayarınızdan bir görsel seçin</span>
         <label class="file-picker" for="cover-upload">
-          <span class="file-picker-button">Dosya seç</span>
-          <span class="file-picker-name" id="cover-upload-name">Henüz dosya seçilmedi</span>
+          <span class="file-picker-button">Görsel seç</span>
+          <span class="file-picker-name" id="cover-upload-name">Dosya seçilmedi</span>
         </label>
         <input id="cover-upload" type="file" name="cover_upload" accept="image/*">
       </div>
-      <p>Buradan dosya seçerseniz görsel otomatik yüklenir ve bu duyuruya kapak olarak atanır.</p>
+      <p>Yüklediğiniz görsel bu duyuruya doğrudan kapak görseli olarak eklenecektir.</p>
     </div>
   </section>
   <div class="admin-actions">
@@ -46,7 +51,7 @@
     const label = document.getElementById("cover-upload-name");
     if (!input || !label) return;
     input.addEventListener("change", function () {
-      const fileName = input.files && input.files.length > 0 ? input.files[0].name : "Henüz dosya seçilmedi";
+      const fileName = input.files && input.files.length > 0 ? input.files[0].name : "Dosya seçilmedi";
       label.textContent = fileName;
     });
   })();

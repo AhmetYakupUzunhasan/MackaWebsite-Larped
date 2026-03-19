@@ -76,6 +76,8 @@ func (a *App) adminRouter(w http.ResponseWriter, r *http.Request) {
 		a.handleAdminDashboard(w, r)
 	case r.URL.Path == "/admin/settings":
 		a.handleAdminSettings(w, r)
+	case r.URL.Path == "/admin/password":
+		a.handleAdminPassword(w, r)
 	case r.URL.Path == "/admin/pages":
 		a.handleAdminPages(w, r)
 	case r.URL.Path == "/admin/pages/edit":
@@ -94,10 +96,8 @@ func (a *App) adminRouter(w http.ResponseWriter, r *http.Request) {
 		a.handleAdminPostPublish(w, r)
 	case r.URL.Path == "/admin/posts/delete" && r.Method == http.MethodPost:
 		a.handleAdminPostDelete(w, r)
-	case r.URL.Path == "/admin/media":
-		a.handleAdminMedia(w, r)
-	case r.URL.Path == "/admin/media/delete" && r.Method == http.MethodPost:
-		a.handleAdminMediaDelete(w, r)
+	case r.URL.Path == "/admin/contacts/delete" && r.Method == http.MethodPost:
+		a.handleAdminContactDelete(w, r)
 	case r.URL.Path == "/admin/contacts":
 		a.handleAdminContacts(w, r)
 	default:
@@ -121,20 +121,37 @@ func (a *App) currentAdmin(r *http.Request) *AdminUser {
 	return user
 }
 
+func (a *App) authenticatedAdmin(r *http.Request) (*AdminUser, error) {
+	cookie, err := r.Cookie(a.config.SessionName)
+	if err != nil {
+		return nil, err
+	}
+
+	parts := strings.Split(cookie.Value, ":")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid session format")
+	}
+
+	id, err := strconv.ParseInt(parts[0], 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := getAdminUserByID(r.Context(), a.db, id)
+	if err != nil || user == nil {
+		return nil, err
+	}
+
+	if parts[1] != a.sessionToken(user) {
+		return nil, fmt.Errorf("session expired")
+	}
+
+	return user, nil
+}
+
 func (a *App) requireAdmin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie(a.config.SessionName)
-		if err != nil {
-			http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
-			return
-		}
-		id, err := strconv.ParseInt(cookie.Value, 10, 64)
-		if err != nil {
-			a.clearSession(w)
-			http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
-			return
-		}
-		user, err := getAdminUserByID(r.Context(), a.db, id)
+		user, err := a.authenticatedAdmin(r)
 		if err != nil || user == nil {
 			a.clearSession(w)
 			http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
@@ -148,11 +165,15 @@ func (a *App) requireAdmin(next http.Handler) http.Handler {
 func (a *App) signIn(w http.ResponseWriter, user *AdminUser) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     a.config.SessionName,
-		Value:    strconv.FormatInt(user.ID, 10),
+		Value:    fmt.Sprintf("%d:%s", user.ID, a.sessionToken(user)),
 		Path:     "/",
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
 	})
+}
+
+func (a *App) sessionToken(user *AdminUser) string {
+	return hashPassword(user.PasswordHash)[:16]
 }
 
 func (a *App) clearSession(w http.ResponseWriter) {

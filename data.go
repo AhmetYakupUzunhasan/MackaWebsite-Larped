@@ -140,54 +140,92 @@ func normalizeLegacyTurkishContent(ctx context.Context, tx *sql.Tx) error {
 		args  []any
 	}{
 		{
-			query: `UPDATE site_settings SET
-				association_name_tr = 'Dayanışma Derneği',
-				tagline_tr = 'Birlikte daha kapsayıcı bir gelecek için çalışıyoruz.',
-				footer_text_tr = 'Toplumu güçlendiren ortak iyilik girişimleri.',
-				address_tr = 'İstanbul, Türkiye',
-				nav_about_tr = 'Hakkımızda',
-				nav_contact_tr = 'İletişim',
-				seo_description_tr = 'Derneğin faaliyetleri, duyuruları ve iletişim bilgileri.'
-				WHERE id = 1 AND (
-					association_name_tr = 'Dayanisma Dernegi' OR
-					tagline_tr = 'Birlikte daha kapsayici bir gelecek icin calisiyoruz.' OR
-					footer_text_tr = 'Toplumu guclendiren ortak iyilik girisimleri.' OR
-					address_tr = 'Istanbul, Turkiye' OR
-					nav_about_tr = 'Hakkimizda' OR
-					nav_contact_tr = 'Iletisim'
-				)`,
+			query: "UPDATE site_settings SET " +
+				"association_name_tr = 'Dayan\u0131\u015fma Derne\u011fi', " +
+				"tagline_tr = 'Birlikte daha kapsay\u0131c\u0131 bir gelecek i\u00e7in \u00e7al\u0131\u015f\u0131yoruz.', " +
+				"footer_text_tr = 'Toplumu g\u00fc\u00e7lendiren ortak iyilik giri\u015fimleri.', " +
+				"address_tr = '\u0130stanbul, T\u00fcrkiye', " +
+				"nav_about_tr = 'Hakk\u0131m\u0131zda', " +
+				"nav_contact_tr = '\u0130leti\u015fim', " +
+				"seo_description_tr = 'Derne\u011fin faaliyetleri, duyurular\u0131 ve ileti\u015fim bilgileri.' " +
+				"WHERE id = 1 AND (" +
+				"association_name_tr = 'Dayanisma Dernegi' OR " +
+				"tagline_tr = 'Birlikte daha kapsayici bir gelecek icin calisiyoruz.' OR " +
+				"footer_text_tr = 'Toplumu guclendiren ortak iyilik girisimleri.' OR " +
+				"address_tr = 'Istanbul, Turkiye' OR " +
+				"nav_about_tr = 'Hakkimizda' OR " +
+				"nav_contact_tr = 'Iletisim'" +
+				")",
 		},
 		{
-			query: `UPDATE pages SET title = ?, intro = ?, body = ?, seo_description = ? WHERE slug = 'home' AND language = 'tr' AND title = 'Birlikte Uretiyor, Birlikte Gucleniyoruz'`,
-			args:  []any{"Birlikte Üretiyor, Birlikte Güçleniyoruz", "Derneğimizin amacı, toplumsal dayanışmanın kalıcı ve kapsayıcı yapılarla büyümesine katkıda bulunmak.", "Gönüllüler, destekçiler ve yerel paydaşlarla birlikte üretilen programlar aracılığıyla daha adil bir gelecek için çalışıyoruz.", "Derneğimizin hikâyesi, faaliyetleri ve güncel duyuruları."},
+			query: "UPDATE pages SET title = ?, intro = ?, body = ?, seo_description = ? WHERE slug = 'home' AND language = 'tr' AND title = 'Birlikte Uretiyor, Birlikte Gucleniyoruz'",
+			args: []any{
+				"Birlikte \u00dcretiyor, Birlikte G\u00fc\u00e7leniyoruz",
+				"Derne\u011fimizin amac\u0131, toplumsal dayan\u0131\u015fman\u0131n kal\u0131c\u0131 ve kapsay\u0131c\u0131 yap\u0131larla b\u00fcy\u00fcmesine katk\u0131da bulunmak.",
+				"G\u00f6n\u00fcll\u00fcler, destek\u00e7iler ve yerel payda\u015flarla birlikte \u00fcretilen programlar arac\u0131l\u0131\u011f\u0131yla daha adil bir gelecek i\u00e7in \u00e7al\u0131\u015f\u0131yoruz.",
+				"Derne\u011fimizin hik\u00e2yesi, faaliyetleri ve g\u00fcncel duyurular\u0131.",
+			},
 		},
 		{
-			query: `UPDATE pages SET title = ?, intro = ?, body = ?, seo_description = ? WHERE slug = 'about' AND language = 'tr' AND title = 'Hakkimizda'`,
-			args:  []any{"Hakkımızda", "Ortak bir amaç etrafında bir araya gelen bir topluluğuz.", "Derneğimiz; eğitim, dayanışma ve toplumsal katılım alanlarında üretilen projelerle etkisini büyütüyor.\n\nKurumsal hafızamızı ve sahadaki öğrenimlerimizi, yeni iş birliklerine açık bir şekilde paylaşıyoruz.", "Derneğimizin vizyonu, değerleri ve çalışma alanı."},
+			query: "UPDATE pages SET title = ?, intro = ?, body = ?, seo_description = ? WHERE slug = 'about' AND language = 'tr' AND title = 'Hakkimizda'",
+			args: []any{
+				"Hakk\u0131m\u0131zda",
+				"Ortak bir ama\u00e7 etraf\u0131nda bir araya gelen bir toplulu\u011fuz.",
+				"Derne\u011fimiz; e\u011fitim, dayan\u0131\u015fma ve toplumsal kat\u0131l\u0131m alanlar\u0131nda \u00fcretilen projelerle etkisini b\u00fcy\u00fct\u00fcyor.\n\nKurumsal haf\u0131zam\u0131z\u0131 ve sahadaki \u00f6\u011frenimlerimizi, yeni i\u015f birliklerine a\u00e7\u0131k bir \u015fekilde payla\u015f\u0131yoruz.",
+				"Derne\u011fimizin vizyonu, de\u011ferleri ve \u00e7al\u0131\u015fma alan\u0131.",
+			},
 		},
 		{
-			query: `UPDATE pages SET title = ?, intro = ?, body = ?, seo_description = ? WHERE slug = 'contact' AND language = 'tr' AND title = 'Iletisim'`,
-			args:  []any{"İletişim", "Bizimle iletişime geçmek, iş birliği önermek ya da soru sormak için formu kullanabilirsiniz.", "En kısa sürede size dönüş yapmaya çalışıyoruz.", "Dernek iletişim formu ve iletişim bilgileri."},
+			query: "UPDATE pages SET title = ?, intro = ?, body = ?, seo_description = ? WHERE slug = 'contact' AND language = 'tr' AND title = 'Iletisim'",
+			args: []any{
+				"\u0130leti\u015fim",
+				"Bizimle ileti\u015fime ge\u00e7mek, i\u015f birli\u011fi \u00f6nermek ya da soru sormak i\u00e7in formu kullanabilirsiniz.",
+				"En k\u0131sa s\u00fcrede size d\u00f6n\u00fc\u015f yapmaya \u00e7al\u0131\u015f\u0131yoruz.",
+				"Dernek ileti\u015fim formu ve ileti\u015fim bilgileri.",
+			},
 		},
 		{
-			query: `UPDATE page_sections SET title = ?, subtitle = ?, body = ?, cta_name = ? WHERE page_slug = 'home' AND section_key = 'hero' AND language = 'tr'`,
-			args:  []any{"Toplumsal dayanışma için birlikte hareket ediyoruz", "Yerel ihtiyaçları dinleyen, sürdürülebilir ve insan odaklı programlar.", "Gönüllü ağımız, iş birliklerimiz ve sahadaki deneyimimizle toplumsal faydayı büyüten projeler üretiyoruz.", "Bize Ulaşın"},
+			query: "UPDATE page_sections SET title = ?, subtitle = ?, body = ?, cta_name = ? WHERE page_slug = 'home' AND section_key = 'hero' AND language = 'tr'",
+			args: []any{
+				"Toplumsal dayan\u0131\u015fma i\u00e7in birlikte hareket ediyoruz",
+				"Yerel ihtiya\u00e7lar\u0131 dinleyen, s\u00fcrd\u00fcr\u00fclebilir ve insan odakl\u0131 programlar.",
+				"G\u00f6n\u00fcll\u00fc a\u011f\u0131m\u0131z, i\u015f birliklerimiz ve sahadaki deneyimimizle toplumsal fayday\u0131 b\u00fcy\u00fcten projeler \u00fcretiyoruz.",
+				"Bize Ula\u015f\u0131n",
+			},
 		},
 		{
-			query: `UPDATE page_sections SET title = ?, subtitle = ?, body = ?, cta_name = ? WHERE page_slug = 'home' AND section_key = 'about' AND language = 'tr'`,
-			args:  []any{"Neden varız?", "Kapsayıcı topluluklar için ortak üretim", "Derneğimiz, farklı kesimlerin bir araya gelerek bilgiyi, emeği ve kaynakları paylaştığı bir dayanışmanın alanını kurar.", "Hakkımızda"},
+			query: "UPDATE page_sections SET title = ?, subtitle = ?, body = ?, cta_name = ? WHERE page_slug = 'home' AND section_key = 'about' AND language = 'tr'",
+			args: []any{
+				"Neden var\u0131z?",
+				"Kapsay\u0131c\u0131 topluluklar i\u00e7in ortak \u00fcretim",
+				"Derne\u011fimiz, farkl\u0131 kesimlerin bir araya gelerek bilgiyi, eme\u011fi ve kaynaklar\u0131 payla\u015ft\u0131\u011f\u0131 bir dayan\u0131\u015fman\u0131n alan\u0131n\u0131 kurar.",
+				"Hakk\u0131m\u0131zda",
+			},
 		},
 		{
-			query: `UPDATE page_sections SET title = ?, subtitle = ?, body = ? WHERE page_slug = 'home' AND section_key = 'activities' AND language = 'tr'`,
-			args:  []any{"Neler yapıyoruz?", "Sahadan öğreniyor, birlikte geliştiriyoruz", "Atölyeler, dayanışma programları, bilgilendirme buluşmaları ve yerel ortaklıklar aracılığıyla uzun vadeli etki oluşturuyoruz."},
+			query: "UPDATE page_sections SET title = ?, subtitle = ?, body = ? WHERE page_slug = 'home' AND section_key = 'activities' AND language = 'tr'",
+			args: []any{
+				"Neler yap\u0131yoruz?",
+				"Sahadan \u00f6\u011freniyor, birlikte geli\u015ftiriyoruz",
+				"At\u00f6lyeler, dayan\u0131\u015fma programlar\u0131, bilgilendirme bulu\u015fmalar\u0131 ve yerel ortakl\u0131klar arac\u0131l\u0131\u011f\u0131yla uzun vadeli etki olu\u015fturuyoruz.",
+			},
 		},
 		{
-			query: `UPDATE page_sections SET title = ?, subtitle = ?, body = ?, cta_name = ? WHERE page_slug = 'home' AND section_key = 'cta' AND language = 'tr'`,
-			args:  []any{"Birlikte çalışalım", "Ortaklık, destek ya da bilgi talepleriniz için bize ulaşın.", "Topluma değer katan yeni iş birliklerine her zaman açığız.", "Mesaj Gönder"},
+			query: "UPDATE page_sections SET title = ?, subtitle = ?, body = ?, cta_name = ? WHERE page_slug = 'home' AND section_key = 'cta' AND language = 'tr'",
+			args: []any{
+				"Birlikte \u00e7al\u0131\u015fal\u0131m",
+				"Ortakl\u0131k, destek ya da bilgi talepleriniz i\u00e7in bize ula\u015f\u0131n.",
+				"Topluma de\u011fer katan yeni i\u015f birliklerine her zaman a\u00e7\u0131\u011f\u0131z.",
+				"Mesaj G\u00f6nder",
+			},
 		},
 		{
-			query: `UPDATE posts SET title_tr = ?, summary_tr = ?, body_tr = ? WHERE slug = 'ilk-duyuru' AND title_tr = 'Ilk duyuru'`,
-			args:  []any{"İlk duyuru", "Dernek sitesinin ilk duyurusu yayında.", "Bu alan yönetim panelinden tamamen düzenlenebilir ilk duyuru örneğidir."},
+			query: "UPDATE posts SET title_tr = ?, summary_tr = ?, body_tr = ? WHERE slug = 'ilk-duyuru' AND title_tr = 'Ilk duyuru'",
+			args: []any{
+				"\u0130lk duyuru",
+				"Dernek sitesinin ilk duyurusu yay\u0131nda.",
+				"Bu alan y\u00f6netim panelinden tamamen d\u00fczenlenebilir ilk duyuru \u00f6rne\u011fidir.",
+			},
 		},
 	}
 
@@ -545,6 +583,11 @@ func listContactSubmissions(ctx context.Context, db *sql.DB, limit int) ([]Conta
 	return contacts, rows.Err()
 }
 
+func deleteContactSubmission(ctx context.Context, db *sql.DB, id int64) error {
+	_, err := db.ExecContext(ctx, `DELETE FROM contact_submissions WHERE id = ?`, id)
+	return err
+}
+
 func getAdminUserByUsername(ctx context.Context, db *sql.DB, username string) (*AdminUser, error) {
 	var user AdminUser
 	err := db.QueryRowContext(ctx, `
@@ -575,13 +618,21 @@ func getAdminUserByID(ctx context.Context, db *sql.DB, id int64) (*AdminUser, er
 	return &user, nil
 }
 
+func updateAdminUserPassword(ctx context.Context, db *sql.DB, id int64, passwordHash string) error {
+	_, err := db.ExecContext(ctx, `
+		UPDATE admin_users
+		SET password_hash = ?
+		WHERE id = ?
+	`, passwordHash, id)
+	return err
+}
+
 func getDashboardCounts(ctx context.Context, db *sql.DB) (map[string]int, error) {
 	out := map[string]int{}
 	queries := map[string]string{
 		"pages":    "SELECT COUNT(*) FROM pages",
 		"sections": "SELECT COUNT(*) FROM page_sections",
 		"posts":    "SELECT COUNT(*) FROM posts",
-		"media":    "SELECT COUNT(*) FROM media",
 		"contacts": "SELECT COUNT(*) FROM contact_submissions",
 	}
 	for key, query := range queries {

@@ -11,14 +11,6 @@
       <label>Buton metni<input type="text" name="cta_name" value="{{.Section.CTAName}}"></label>
       <label>Buton bağlantısı<input type="text" name="cta_url" value="{{.Section.CTAURL}}"></label>
       <label>Sıralama<input type="number" name="sort_order" value="{{.Section.SortOrder}}"></label>
-      <label>Görsel
-        <select name="image_id">
-          <option value="">Görsel seçilmedi</option>
-          {{range .Media}}
-          <option value="{{.ID}}" {{if and $.Section.ImageID.Valid (eq $.Section.ImageID.Int64 .ID)}}selected{{end}}>{{.Title}} (#{{.ID}})</option>
-          {{end}}
-        </select>
-      </label>
     </div>
   </section>
   <div class="admin-actions">

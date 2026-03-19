@@ -11,22 +11,22 @@ import (
 func (a *App) handleHome(w http.ResponseWriter, r *http.Request, lang Language) {
 	settings, err := a.cachedSettings(r.Context())
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load site settings")
+		a.renderError(w, http.StatusInternalServerError, "Site ayarlar\u0131 y\u00fcklenemedi.")
 		return
 	}
 	page, err := a.cachedPage(r.Context(), "home", lang)
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load home page")
+		a.renderError(w, http.StatusInternalServerError, "Ana sayfa y\u00fcklenemedi.")
 		return
 	}
 	sections, err := a.cachedSections(r.Context(), "home", lang)
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load sections")
+		a.renderError(w, http.StatusInternalServerError, "B\u00f6l\u00fcmler y\u00fcklenemedi.")
 		return
 	}
 	posts, err := a.cachedPublishedPosts(r.Context(), 3)
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load posts")
+		a.renderError(w, http.StatusInternalServerError, "Duyurular y\u00fcklenemedi.")
 		return
 	}
 	data := HomePageData{
@@ -43,7 +43,7 @@ func (a *App) handleHome(w http.ResponseWriter, r *http.Request, lang Language) 
 func (a *App) handlePage(w http.ResponseWriter, r *http.Request, slug string, lang Language) {
 	settings, err := a.cachedSettings(r.Context())
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load site settings")
+		a.renderError(w, http.StatusInternalServerError, "Site ayarlar\u0131 y\u00fcklenemedi.")
 		return
 	}
 	page, err := a.cachedPage(r.Context(), slug, lang)
@@ -52,7 +52,7 @@ func (a *App) handlePage(w http.ResponseWriter, r *http.Request, slug string, la
 			http.NotFound(w, r)
 			return
 		}
-		a.renderError(w, http.StatusInternalServerError, "failed to load page")
+		a.renderError(w, http.StatusInternalServerError, "Sayfa y\u00fcklenemedi.")
 		return
 	}
 	a.render(w, "templates/page.html", PageData{Settings: settings, Lang: lang, Page: page, FlashSuccess: r.URL.Query().Get("success")})
@@ -61,12 +61,12 @@ func (a *App) handlePage(w http.ResponseWriter, r *http.Request, slug string, la
 func (a *App) handleAnnouncements(w http.ResponseWriter, r *http.Request, lang Language) {
 	settings, err := a.cachedSettings(r.Context())
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load site settings")
+		a.renderError(w, http.StatusInternalServerError, "Site ayarlar\u0131 y\u00fcklenemedi.")
 		return
 	}
 	posts, err := a.cachedPublishedPosts(r.Context(), 0)
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load announcements")
+		a.renderError(w, http.StatusInternalServerError, "Duyurular y\u00fcklenemedi.")
 		return
 	}
 	a.render(w, "templates/posts.html", PostListData{
@@ -80,7 +80,7 @@ func (a *App) handleAnnouncements(w http.ResponseWriter, r *http.Request, lang L
 func (a *App) handleAnnouncementDetail(w http.ResponseWriter, r *http.Request, lang Language, slug string) {
 	settings, err := a.cachedSettings(r.Context())
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to load site settings")
+		a.renderError(w, http.StatusInternalServerError, "Site ayarlar\u0131 y\u00fcklenemedi.")
 		return
 	}
 	post, media, err := a.cachedPostDetail(r.Context(), slug)
@@ -89,7 +89,7 @@ func (a *App) handleAnnouncementDetail(w http.ResponseWriter, r *http.Request, l
 			http.NotFound(w, r)
 			return
 		}
-		a.renderError(w, http.StatusInternalServerError, "failed to load announcement")
+		a.renderError(w, http.StatusInternalServerError, "Duyuru y\u00fcklenemedi.")
 		return
 	}
 	a.render(w, "templates/post_detail.html", PostDetailData{
@@ -106,7 +106,7 @@ func (a *App) handleAnnouncementDetail(w http.ResponseWriter, r *http.Request, l
 
 func (a *App) handleContactSubmit(w http.ResponseWriter, r *http.Request, lang Language) {
 	if err := r.ParseForm(); err != nil {
-		a.renderError(w, http.StatusBadRequest, "invalid form")
+		a.renderError(w, http.StatusBadRequest, "Form verisi okunamad\u0131.")
 		return
 	}
 	name := strings.TrimSpace(r.FormValue("name"))
@@ -114,7 +114,7 @@ func (a *App) handleContactSubmit(w http.ResponseWriter, r *http.Request, lang L
 	subject := strings.TrimSpace(r.FormValue("subject"))
 	message := strings.TrimSpace(r.FormValue("message"))
 	if name == "" || email == "" || message == "" {
-		target := pagePath(lang, "contact") + "?success=" + url.QueryEscape("Lütfen zorunlu alanları doldurun.")
+		target := pagePath(lang, "contact") + "?success=" + url.QueryEscape("L\u00fctfen zorunlu alanlar\u0131 doldurun.")
 		http.Redirect(w, r, target, http.StatusSeeOther)
 		return
 	}
@@ -126,9 +126,9 @@ func (a *App) handleContactSubmit(w http.ResponseWriter, r *http.Request, lang L
 		Language: lang,
 	})
 	if err != nil {
-		a.renderError(w, http.StatusInternalServerError, "failed to save contact form")
+		a.renderError(w, http.StatusInternalServerError, "\u0130leti\u015fim formu kaydedilemedi.")
 		return
 	}
-	target := pagePath(lang, "contact") + "?success=" + url.QueryEscape("Mesajınız alındı.")
+	target := pagePath(lang, "contact") + "?success=" + url.QueryEscape("Mesaj\u0131n\u0131z al\u0131nd\u0131.")
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }

@@ -159,14 +159,19 @@ type DashboardData struct {
 	PageCount      int
 	SectionCount   int
 	PostCount      int
-	MediaCount     int
 	ContactCount   int
 	RecentContacts []ContactSubmission
 }
 
 type AdminSettingsData struct {
 	AdminLayoutData
-	Form SiteSettings
+	Form          SiteSettings
+	PasswordError string
+}
+
+type AdminPasswordData struct {
+	AdminLayoutData
+	PasswordError string
 }
 
 type AdminPagesData struct {
@@ -182,13 +187,11 @@ type AdminPageEditData struct {
 type AdminSectionsData struct {
 	AdminLayoutData
 	Sections []PageSection
-	Media    []MediaAsset
 }
 
 type AdminSectionEditData struct {
 	AdminLayoutData
 	Section PageSection
-	Media   []MediaAsset
 }
 
 type AdminPostsData struct {
@@ -199,7 +202,7 @@ type AdminPostsData struct {
 type AdminPostEditData struct {
 	AdminLayoutData
 	Post  Post
-	Media []MediaAsset
+	Cover *MediaAsset
 }
 
 type AdminMediaData struct {

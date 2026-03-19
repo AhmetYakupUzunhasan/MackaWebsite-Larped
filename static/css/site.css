@@ -275,6 +275,20 @@ p {
   padding: 24px;
 }
 
+.post-card-cover-link {
+  display: block;
+  margin: -24px -24px 18px;
+  border-radius: 26px 26px 18px 18px;
+  overflow: hidden;
+}
+
+.post-card-cover {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 0;
+}
+
 .announcements-heading {
   align-items: end;
 }
@@ -468,6 +482,7 @@ input, textarea, select {
 }
 
 .dashboard-stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 28px;
   margin-bottom: 0;
 }
@@ -551,6 +566,21 @@ input, textarea, select {
   background:
     linear-gradient(180deg, rgba(245,236,221,0.92), rgba(255,250,241,0.96)),
     var(--surface);
+}
+
+.inline-cover-preview {
+  max-width: 320px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(31,43,36,0.12);
+  background: rgba(255,255,255,0.72);
+}
+
+.inline-cover-preview img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 0;
 }
 
 .file-picker-field {
@@ -802,6 +832,10 @@ th, td {
     padding: 20px;
   }
 
+  .post-card-cover-link {
+    margin: -20px -20px 16px;
+  }
+
   .admin-main {
     padding: 18px;
   }
@@ -865,6 +899,11 @@ th, td {
   .login-card {
     padding: 18px;
     border-radius: 20px;
+  }
+
+  .post-card-cover-link {
+    margin: -18px -18px 14px;
+    border-radius: 20px 20px 16px 16px;
   }
 
   .dashboard-action-card .btn {
